@@ -398,6 +398,8 @@ with st.sidebar:
                 st.markdown(f"{cat['icon']} **{cat['label']}** — {count}", unsafe_allow_html=False)
 
     st.markdown("---")
+    api_key = st.secrets.get("ANTHROPIC_API_KEY", "")
+if not api_key:
     api_key = st.text_input("Anthropic API Key", type="password", placeholder="sk-ant-...", help="Your key is never stored.")
 
 
@@ -457,7 +459,7 @@ if page == "📰 Add News":
                     try:
                         client = anthropic.Anthropic(api_key=api_key)
                         message = client.messages.create(
-                            model="claude-sonnet-4-5",
+                            model="claude-sonnet-4-6",
                             max_tokens=1000,
                             system=SYSTEM_PROMPT,
                             messages=[{
