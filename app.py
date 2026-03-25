@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 import json
 import os
 from datetime import datetime, date
@@ -413,9 +413,9 @@ with st.sidebar:
                 st.markdown(f"{cat['icon']} **{cat['label']}** — {count}", unsafe_allow_html=False)
 
     st.markdown("---")
-    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    api_key = st.secrets.get("GROQ_API_KEY", "")
     if not api_key:
-        api_key = st.text_input("Gemini API Key", type="password", placeholder="AIza...", help="Get free key at aistudio.google.com")
+        api_key = st.text_input("Groq API Key", type="password", placeholder="gsk_...", help="Get free key at console.groq.com")
 
 
 # ── ADD NEWS PAGE ─────────────────────────────────────────────────────────────
@@ -466,21 +466,21 @@ if page == "📰 Add News":
 
         if generate_btn:
             if not api_key:
-                st.error("Please enter your Gemini API key in the sidebar.")
+                st.error("Please enter your Groq API key in the sidebar.")
             elif not article_text.strip():
                 st.warning("Please paste an article first.")
             else:
                 with st.spinner("⚙️ Generating UPSC notes..."):
                     try:
-                        genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel(
-                            model_name="gemini-2.0-flash",
-                            system_instruction=SYSTEM_PROMPT
+                        client = Groq(api_key=api_key)
+                        response = client.chat.completions.create(
+                            model="llama-3.3-70b-versatile",
+                            messages=[
+                                {"role": "system", "content": SYSTEM_PROMPT},
+                                {"role": "user", "content": f"Convert this newspaper content into UPSC notes:\n\n{article_text}"}
+                            ]
                         )
-                        response = model.generate_content(
-                            f"Convert this newspaper content into UPSC notes:\n\n{article_text}"
-                        )
-                        raw = response.text
+                        raw = response.choices[0].message.content
                         cleaned = raw.replace("```json", "").replace("```", "").strip()
                         parsed = json.loads(cleaned)
 
