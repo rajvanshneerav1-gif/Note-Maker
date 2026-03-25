@@ -1,5 +1,5 @@
 import streamlit as st
-import anthropic
+import google.generativeai as genai
 import json
 import os
 from datetime import datetime, date
@@ -398,9 +398,9 @@ with st.sidebar:
                 st.markdown(f"{cat['icon']} **{cat['label']}** — {count}", unsafe_allow_html=False)
 
     st.markdown("---")
-    api_key = st.secrets.get("ANTHROPIC_API_KEY", "")
-if not api_key:
-    api_key = st.text_input("Anthropic API Key", type="password", placeholder="sk-ant-...", help="Your key is never stored.")
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+    if not api_key:
+        api_key = st.text_input("Gemini API Key", type="password", placeholder="AIza...", help="Get free key at aistudio.google.com")
 
 
 # ── ADD NEWS PAGE ─────────────────────────────────────────────────────────────
@@ -451,23 +451,21 @@ if page == "📰 Add News":
 
         if generate_btn:
             if not api_key:
-                st.error("Please enter your Anthropic API key in the sidebar.")
+                st.error("Please enter your Gemini API key in the sidebar.")
             elif not article_text.strip():
                 st.warning("Please paste an article first.")
             else:
                 with st.spinner("⚙️ Generating UPSC notes..."):
                     try:
-                        client = anthropic.Anthropic(api_key=api_key)
-                        message = client.messages.create(
-                            model="claude-sonnet-4-6",
-                            max_tokens=1000,
-                            system=SYSTEM_PROMPT,
-                            messages=[{
-                                "role": "user",
-                                "content": f"Convert this newspaper content into UPSC notes:\n\n{article_text}"
-                            }]
+                        genai.configure(api_key=api_key)
+                        model = genai.GenerativeModel(
+                            model_name="gemini-1.5-flash",
+                            system_instruction=SYSTEM_PROMPT
                         )
-                        raw = message.content[0].text
+                        response = model.generate_content(
+                            f"Convert this newspaper content into UPSC notes:\n\n{article_text}"
+                        )
+                        raw = response.text
                         cleaned = raw.replace("```json", "").replace("```", "").strip()
                         parsed = json.loads(cleaned)
 
