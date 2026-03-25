@@ -340,8 +340,23 @@ header[data-testid="stHeader"] { background: transparent; }
     margin-right: 6px;
 }
 
+/* Make sidebar toggle button visible */
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    background: #1a1208 !important;
+    color: #c9a84c !important;
+    border-radius: 4px !important;
+    width: 36px !important;
+    height: 36px !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: #c9a84c !important;
+}
+
 /* Hide Streamlit branding */
-#MainMenu, footer, header { visibility: hidden; }
+#MainMenu, footer { visibility: hidden; }
 
 /* Streamlit button tweaks */
 .stButton > button {
